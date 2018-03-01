@@ -44,24 +44,25 @@ print('Ex 3')
 print(fun_all((np.array([1,1]),np.array([3]),np.array([1,1]))))
 
 #Ex 4
-n = 4
+n = 2
 
 variable = K.ones(shape=(n+1,))
 x = K.placeholder(shape=())
 
 poly = None
-i=0
-for element in variable:
+
+for i  in range(0,n+1):
     if poly is None:
-        poly = element*x**i
+        poly = variable[i]*x**i
     else:
-        poly+=element*x**i
+        poly+=variable[i]*x**i
     i+=1
 
-#grad_poly = K.gradients(loss=poly, variables
-#poly_fun = K.function(inputs=(x,variable), outputs=[poly] + grad_poly)
+grad_poly = K.gradients(loss=poly, variables=variable)
+poly_fun = K.function(inputs=(x,variable), outputs=[poly] + grad_poly)
 
-
+print('Ex 4')
+print(poly_fun((np.array(2),np.array([1,2,3]))))
 
 
 
