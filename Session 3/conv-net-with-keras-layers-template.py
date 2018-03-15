@@ -42,7 +42,7 @@ print("[MESSAGE] Converted labels to categorical labels.")
 # define a model
 # >>>>> PUT YOUR CODE HERE <<<<<
 
-input_shape = train_x.shape[1:]
+`input_shape = train_x.shape[1:]
 
 x = Input(input_shape)
 y = Conv2D(filters =20,
@@ -57,6 +57,7 @@ y = Conv2D(filters =25,
            activation="relu",
            )(y)
 y = MaxPooling2D((2,2), strides=(2,2))(y)
+y = Flatten()(y)
 y = Dense(10, activation="softmax", )(y)
 model = Model(x,y)
 
