@@ -55,7 +55,7 @@ input_dim = train_X.shape[1]
 
 # defining the batch size and epochs
 batch_size = 64
-num_epochs = 1
+num_epochs = 20
 
 # defining the learning rate
 lr = 0.1
@@ -91,7 +91,7 @@ for l in range(1, num_layers):
     bias_var_tupel += bias_variable
 
 # defining the weight and the bias variables for last hidden to output layer
-weight_var_tupel += (K.random_uniform_variable(shape=(num_units[num_layers], num_classes),
+weight_var_tupel += (K.random_uniform_variable(shape=(num_units[num_layers-1], num_classes),
                                             low=-1., high=1.,
                                             dtype='float32'),)
 bias_var_tupel += (K.zeros(shape=(num_classes, ), dtype='float32'),)
@@ -102,18 +102,19 @@ output_tensor = K.dot(input_tensor, weight_var_tupel[0]) + bias_var_tupel[0]
 for l in range(1, num_layers):
     output_tensor = K.dot(output_tensor, weight_var_tupel[l]) + bias_var_tupel[l]
 
-output_tensor = K.dot(ouput_tensor, weight_var_tupel[num_layers]) + bias_var_tupel[num_layers]
+output_tensor = K.dot(output_tensor, weight_var_tupel[num_layers]) + bias_var_tupel[num_layers]
 output_tensor = K.softmax(output_tensor)
 
 # defining the mean loss tensor
-loss_tensor = K.mean(K.categorial_crossentropy(target_tensor, output_tensor))
+loss_tensor = K.mean(K.categorical_crossentropy(target_tensor, output_tensor))
 
 # getting the gradients of the mean loss with respect to the weight and bias
-gradient = K.gradients(loss=loss_tensor, variables= weight_var_tupel + bias_var_tupel)
+gradient_weight = K.gradients(loss=loss_tensor, variables= weight_var_tupel)
+gradient_bias = K.gradients(loss=loss_tensor, variables= bias_var_tupel)
 
 # creating the updates based on stochastic gradient descent rule
-updates = [(weight_var_tupel+bias_var_tupel, weight_var_tupel+bias_var_tupel - lr * gradient[i]) for i in range(num_layers+1)]
-
+updates = [(weight_var_tupel[i], weight_var_tupel[i] - lr * gradient_weight[i]) for i in range(num_layers+1)]
+updates += [(bias_var_tupel[i], bias_var_tupel[i] - lr * gradient_bias[i]) for i in range(num_layers+1)]
 # creating a training function which also updates the variables when the
 # function is called based on the lists of updates provided
 train_function = K.function(inputs=(input_tensor, target_tensor),
