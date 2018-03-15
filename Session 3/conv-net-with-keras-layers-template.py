@@ -42,9 +42,9 @@ print("[MESSAGE] Converted labels to categorical labels.")
 # define a model
 # >>>>> PUT YOUR CODE HERE <<<<<
 
-feature_dimension = train_x.shape[1]
+`input_shape = train_x.shape[1:]
 
-x = Input(shape=(feature_dimension,))
+x = Input(input_shape)
 y = Conv2D(filters =20,
            kernel_size=(7,7),
            padding="same",
@@ -57,6 +57,7 @@ y = Conv2D(filters =25,
            activation="relu",
            )(y)
 y = MaxPooling2D((2,2), strides=(2,2))(y)
+y = Flatten()(y)
 y = Dense(10, activation="softmax", )(y)
 model = Model(x,y)
 
@@ -110,7 +111,7 @@ plt.figure()
 for i in xrange(2):
     for j in xrange(5):
         plt.subplot(2, 5, i*5+j+1)
-        plt.imshow(test_x[i*5+j], cmap="gray")
+        plt.imshow(np.squeeze(test_x[i*5+j]), cmap="gray")
         plt.title("Ground Truth: %s, \n Prediction %s" %
                   (labels[ground_truths[i*5+j]],
                    labels[preds[i*5+j]]))
