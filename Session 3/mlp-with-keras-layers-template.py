@@ -72,7 +72,7 @@ model.summary()
 # see https://keras.io/losses/
 # >>>>> PUT YOUR CODE HERE <<<<<
 
-model.compile(loss="binary_crossentropy",
+model.compile(loss="categorical_crossentropy",
               optimizer="sgd",
               metrics=["mse"])
 
@@ -83,7 +83,10 @@ print ("[MESSAGE] Model is compiled.")
 # See https://keras.io/models/model/ for usage
 # >>>>> PUT YOUR CODE HERE <<<<<
 
-
+model.fit(
+    x=train_X, y=train_Y,
+    batch_size=64, epochs=3,
+    validation_data=(test_X, test_Y))
 
 print("[MESSAGE] Model is trained.")
 
