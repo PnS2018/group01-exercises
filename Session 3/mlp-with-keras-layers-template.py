@@ -85,7 +85,7 @@ print ("[MESSAGE] Model is compiled.")
 
 model.fit(
     x=train_X, y=train_Y,
-    batch_size=64, epochs=3,
+    batch_size=64, epochs=4,
     validation_data=(test_X, test_Y))
 
 print("[MESSAGE] Model is trained.")
