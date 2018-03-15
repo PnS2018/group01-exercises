@@ -1,4 +1,4 @@
-"""Multi-Layer Perceptron for Fashion MNIST Classification.
+"""Convolutional Neural Network for Fashion MNIST Classification.
 
 Team #name
 """
@@ -7,7 +7,7 @@ from __future__ import print_function, absolute_import
 import numpy as np
 import matplotlib.pyplot as plt
 
-from keras.layers import Input, Dense
+from keras.layers import Input, Dense, Conv2D, MaxPooling2D, Flatten
 from keras.models import Model
 from keras.utils import to_categorical
 
@@ -18,7 +18,7 @@ from pnslib import ml
 # complete label description is at
 # https://github.com/zalandoresearch/fashion-mnist#labels
 (train_x, train_y, test_x, test_y) = utils.fashion_mnist_load(
-    data_type="full", flatten=True)
+    data_type="full", flatten=False)
 
 num_classes = 10
 
@@ -33,16 +33,6 @@ test_x -= mean_train_x
 
 print ("[MESSAGE] Dataset is preprocessed.")
 
-# Use PCA to reduce the dimension of the dataset,
-# so that the training will be less expensive
-# perform PCA on training dataset
-train_X, R, n_retained = ml.pca(train_x)
-
-# perform PCA on testing dataset
-test_X = ml.pca_fit(test_x, R, n_retained)
-
-print ("[MESSAGE] PCA is complete.")
-
 # converting the input class labels to categorical labels for training
 train_Y = to_categorical(train_y, num_classes=num_classes)
 test_Y = to_categorical(test_y, num_classes=num_classes)
@@ -51,16 +41,25 @@ print("[MESSAGE] Converted labels to categorical labels.")
 
 # define a model
 # >>>>> PUT YOUR CODE HERE <<<<<
-feature_dimension = train_X.shape[1]
+
+feature_dimension = train_x.shape[1]
 
 x = Input(shape=(feature_dimension,))
-y = Dense(100, activation="relu", )(x)
-y = Dense(100, activation="relu", )(y)
-
+y = Conv2D(filters =20,
+           kernel_size=(7,7),
+           padding="same",
+           activation="relu",
+           )(x)
+y = MaxPooling2D((2,2), strides=(2,2))(y)
+y = Conv2D(filters =25,
+           kernel_size=(5,5),
+           padding="same",
+           activation="relu",
+           )(y)
+y = MaxPooling2D((2,2), strides=(2,2))(y)
 y = Dense(10, activation="softmax", )(y)
+model = Model(x,y)
 
-
-model = Model(x, y)
 
 print("[MESSAGE] Model is defined.")
 
@@ -72,10 +71,10 @@ model.summary()
 # optimizers if you want
 # see https://keras.io/losses/
 # >>>>> PUT YOUR CODE HERE <<<<<
-
 model.compile(loss="categorical_crossentropy",
-              optimizer="sgd",
-              metrics=["mse"])
+              optimizer="adam",
+              metrics=["mse", "accuracy"])
+
 
 
 print ("[MESSAGE] Model is compiled.")
@@ -85,23 +84,24 @@ print ("[MESSAGE] Model is compiled.")
 # >>>>> PUT YOUR CODE HERE <<<<<
 
 model.fit(
-    x=train_X, y=train_Y,
+    x=train_x, y=train_Y,
     batch_size=64, epochs=3,
-    validation_data=(test_X, test_Y))
+    validation_data=(test_x, test_Y))
+
 
 print("[MESSAGE] Model is trained.")
 
 # save the trained model
-model.save("mlp-fashion-mnist-trained.hdf5")
+model.save("conv-net-fashion-mnist-trained.hdf5")
 
 print("[MESSAGE] Model is saved.")
 
 # visualize the ground truth and prediction
 # take first 10 examples in the testing dataset
-test_X_vis = test_X[:10]  # fetch first 10 samples
+test_x_vis = test_x[:10]  # fetch first 10 samples
 ground_truths = test_y[:10]  # fetch first 10 ground truth prediction
 # predict with the model
-preds = np.argmax(model.predict(test_X_vis), axis=1).astype(np.int)
+preds = np.argmax(model.predict(test_x_vis), axis=1).astype(np.int)
 
 labels = ["Tshirt/top", "Trouser", "Pullover", "Dress", "Coat", "Sandal",
           "Shirt", "Sneaker", "Bag", "Ankle Boot"]
@@ -110,7 +110,7 @@ plt.figure()
 for i in xrange(2):
     for j in xrange(5):
         plt.subplot(2, 5, i*5+j+1)
-        plt.imshow(test_x[i*5+j].reshape(28, 28), cmap="gray")
+        plt.imshow(test_x[i*5+j], cmap="gray")
         plt.title("Ground Truth: %s, \n Prediction %s" %
                   (labels[ground_truths[i*5+j]],
                    labels[preds[i*5+j]]))
