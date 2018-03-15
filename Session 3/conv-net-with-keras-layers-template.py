@@ -42,9 +42,9 @@ print("[MESSAGE] Converted labels to categorical labels.")
 # define a model
 # >>>>> PUT YOUR CODE HERE <<<<<
 
-feature_dimension = train_x.shape[1]
+input_shape = train_x.shape[1:]
 
-x = Input(shape=(feature_dimension,))
+x = Input(input_shape)
 y = Conv2D(filters =20,
            kernel_size=(7,7),
            padding="same",
