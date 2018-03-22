@@ -4,12 +4,17 @@ Team #name
 """
 from __future__ import print_function, absolute_import
 
+import sys
+sys.path.append('../')
+
 import numpy as np
 import matplotlib.pyplot as plt
 
 from keras.layers import Input, Dense, Conv2D, MaxPooling2D, Flatten
 from keras.models import Model
 from keras.utils import to_categorical
+from keras.preprocessing import image
+
 
 from pnslib import utils
 from pnslib import ml
@@ -84,10 +89,22 @@ print ("[MESSAGE] Model is compiled.")
 # See https://keras.io/models/model/ for usage
 # >>>>> PUT YOUR CODE HERE <<<<<
 
-model.fit(
-    x=train_x, y=train_Y,
-    batch_size=64, epochs=3,
-    validation_data=(test_x, test_Y))
+
+datagen = image.ImageDataGenerator(
+    featurewise_center=True,
+    featurewise_std_normalization=True,
+    rotation_range=20,
+    width_shift_range=0.2,
+    height_shift_range=0.2,
+    horizontal_flip=False)
+
+# compute quantities required for featurewise normalization
+# (std, mean, and principal components if ZCA whitening is applied)
+datagen.fit(train_x)
+
+# fits the model on batches with real-time data augmentation:
+model.fit_generator(datagen.flow(train_x, train_Y, batch_size=32),
+                    steps_per_epoch=len(train_x) / 32, epochs=1)
 
 
 print("[MESSAGE] Model is trained.")
