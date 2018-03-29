@@ -1,36 +1,28 @@
 import cv2
-from matplotlib import pyplot as plt
+from pnslib import utils
 
-# read images in gray scale
-img1 = cv2.imread('Lenna.png', 0)
-img2 = cv2.imread('Lenna_and_objects.jpg', 0)
+# read image
+img = cv2.imread("Lenna.png")
 
-# Initiate SIFT detector
-sift = cv2.ORB()
+# load face cascade and eye cascade
+face_cascade = cv2.CascadeClassifier(
+    utils.get_haarcascade_path('haarcascade_frontalface_default.xml'))
+eye_cascade = cv2.CascadeClassifier(
+    utils.get_haarcascade_path('haarcascade_eye.xml'))
 
-# find the keypoints and descriptors with SIFT
-kp1, des1 = sift.detectAndCompute(img1, None)
-kp2, des2 = sift.detectAndCompute(img2, None)
+# search face
+gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
-# initialize brute-force matcher
-#bf = cv2.BFMatcher_create()
-# if on raspberry pi, use
-bf = cv2.BFMatcher()
+faces = face_cascade.detectMultiScale(gray, 1.3, 5)
 
-# matching with KNN matcher, find k=2 best matches for each descriptors.
-matches = bf.knnMatch(des1, des2, k=2)
+for (x, y, w, h) in faces:
+    cv2.rectangle(img, (x, y), (x+w, y+h), (255, 0, 0), 2)
+    roi_gray = gray[y:y+h, x:x+w]
+    roi_color = img[y:y+h, x:x+w]
+    eyes = eye_cascade.detectMultiScale(roi_gray)
+    for (ex, ey, ew, eh) in eyes:
+        cv2.rectangle(roi_color, (ex, ey), (ex+ew, ey+eh), (0, 255, 0), 2)
 
-# store all the good matches as per Lowe's ratio test.
-good = []
-for m, n in matches:
-    # only preserve the matches are close enough to each other
-    if m.distance < 0.7*n.distance:
-        good.append(m)
-
-# draw matches on the image
-#img3 = cv2.drawMatches(img1, kp1, img2, kp2, good, None, flags=2)
-# for raspberry pi
-img3 = cv2.drawMatches(img1, kp1, img2, kp2, good, flags=2)
-
-# display the result
-plt.imshow(img3, 'gray'), plt.show()
+cv2.imshow('img', img)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
