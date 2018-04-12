@@ -14,7 +14,7 @@ rawCapture = PiRGBArray(camera, size=(640, 480))
 
 # allow the camera to warmup
 time.sleep(0.1)
-f = open('Pi_Pictures/Train/last_pic_index.txt', "r")
+f = open('Pi_Pictures/Test/last_pic_index.txt', "r")
 i = [0]*10
 lines = f.readlines()
 for k in range (0, 10):
@@ -26,58 +26,58 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
     image = frame.array
     key = cv2.waitKey(100)
     if key==ord('1'):
-        string = 'Pi_Pictures/Train/Balls/0_picture' + str(i[0]) + '.png'
+        string = 'Pi_Pictures/Test/Balls/0_picture' + str(i[0]) + '.png'
         print(string)
         cv2.imwrite(string, image)
         i[0] += 1
     elif key==ord('2'):
-        string = 'Pi_Pictures/Train/Bottles/1_picture' + str(i[1]) + '.png'
+        string = 'Pi_Pictures/Test/Bottles/1_picture' + str(i[1]) + '.png'
         print(string)
         cv2.imwrite(string, image)
         i[1] += 1
     elif key==ord('3'):
-        string = 'Pi_Pictures/Train/Cans/2_picture' + str(i[2]) + '.png'
+        string = 'Pi_Pictures/Test/Cans/2_picture' + str(i[2]) + '.png'
         print(string)
         cv2.imwrite(string, image)
         i[2] += 1
     elif key==ord('4'):
-        string = 'Pi_Pictures/Train/Cups/3_picture' + str(i[3]) + '.png'
+        string = 'Pi_Pictures/Test/Cups/3_picture' + str(i[3]) + '.png'
         print(string)
         cv2.imwrite(string, image)
         i[3] += 1
     elif key==ord('5'):
-        string = 'Pi_Pictures/Train/Face/4_picture' + str(i[4]) + '.png'
+        string = 'Pi_Pictures/Test/Face/4_picture' + str(i[4]) + '.png'
         print(string)
         cv2.imwrite(string, image)
         i[4] += 1
     elif key==ord('6'):
-        string = 'Pi_Pictures/Train/Pens/5_picture' + str(i[5]) + '.png'
+        string = 'Pi_Pictures/Test/Pens/5_picture' + str(i[5]) + '.png'
         print(string)
         cv2.imwrite(string, image)
         i[5] += 1
     elif key==ord('7'):
-        string = 'Pi_Pictures/Train/Phone/6_picture' + str(i[6]) + '.png'
+        string = 'Pi_Pictures/Test/Phone/6_picture' + str(i[6]) + '.png'
         print(string)
         cv2.imwrite(string, image)
         i[6] += 1
     elif key==ord('8'):
-        string = 'Pi_Pictures/Train/Shoes/7_picture' + str(i[7]) + '.png'
+        string = 'Pi_Pictures/Test/Shoes/7_picture' + str(i[7]) + '.png'
         print(string)
         cv2.imwrite(string, image)
         i[7] += 1
     elif key==ord('9'):
-        string = 'Pi_Pictures/Train/Silverware/8_picture' + str(i[8]) + '.png'
+        string = 'Pi_Pictures/Test/Silverware/8_picture' + str(i[8]) + '.png'
         print(string)
         cv2.imwrite(string, image)
         i[8] += 1
     elif key==ord('0'):
-        string = 'Pi_Pictures/Train/Yoghurt/9_picture' + str(i[9]) + '.png'
+        string = 'Pi_Pictures/Test/Yoghurt/9_picture' + str(i[9]) + '.png'
         print(string)
         cv2.imwrite(string, image)
         i[9] += 1
     # the loop breaks at pressing `q`
     elif key==ord('q'):
-        string = 'Pi_Pictures/Train/last_pic_index.txt'
+        string = 'Pi_Pictures/Test/last_pic_index.txt'
         f = open(string, "w")
         for l in range(0,10):
             f.write(str(i[l]))
