@@ -41,12 +41,14 @@ def load_train_set():
             string = feature + str(k) + '.png'
             train_x[i*PicturesPFeature+k] = cv2.imread(string, color)
 
-     # preprocessing for training and testing images
-    train_x = train_x.astype("float32")/255.  # rescale image
-    mean_train_x = np.mean(train_x, axis=0)  # compute the mean across pixels
-    train_x -= mean_train_x  # remove the mean pixel value from image
-    test_x = test_x.astype("float32")/255.
-    test_x -= mean_train_x
     output = (train_x, train_y, Feature_number, shape)
+    return output
+
+def load_valid_set():
+
+    valid_x = []
+    valid_y = []
+
+    output = (valid_x, valid_y)
     return output
 
