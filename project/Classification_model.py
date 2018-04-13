@@ -3,6 +3,8 @@ from keras.models import Model
 from keras.preprocessing import image
 from keras.utils import to_categorical
 
+import os
+
 from Dataset_generator import *
 
 class Classification_model:
@@ -75,12 +77,19 @@ class Classification_model:
         print("[MESSAGE] Model is saved.")
 
     def load_model(self):
-        try:
-            my_abs_path = file.resolve()
-        except FileNotFoundError:
-            #doesn't exist
-            print("[MESSAGE] No safed model weights found")
-        else:
+        if os.path.isfile(self.designator + ".hdf5"):
             # exists
             self.model.load_weights(self.designator + ".hdf5")
             print("[MESSAGE] Loaded model weights")
+        else:
+            # doesn't exist
+            print("[MESSAGE] No safed model weights found")
+
+    def get_model(self):
+        return self.model
+
+    def get_number_of_classes(self):
+        return self.num_classes
+
+    def get_imput_shape(self):
+        return self.shape
