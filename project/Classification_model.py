@@ -10,6 +10,7 @@ from Dataset_generator import *
 class Classification_model:
     def __init__(self,designator):
         self.designator = designator
+        feature_number = get_num_of_classes()
         self.x = Input(shape)
 
         self.y = Conv2D(filters=20,
@@ -23,9 +24,9 @@ class Classification_model:
                    padding="same",
                    activation="relu",
                    )(self.y)
-        self.y = self.MaxPooling2D((2, 2), strides=(2, 2))(self.y)
+        self.y = MaxPooling2D((2, 2), strides=(2, 2))(self.y)
         self.y = Flatten()(self.y)
-        self.y = Dense(self.num_classes, activation="softmax", )(self.y)
+        self.y = Dense(feature_number, activation="softmax", )(self.y)
         self.model = Model(self.x, self.y)
 
         print("[MESSAGE] Model is defined.")
@@ -41,10 +42,15 @@ class Classification_model:
 
 
     def train_model(self):
+        #Load training values
+        (batch_size, epochs, rot_range, width_range, height_range, h_flip,v_flip) = train_options()
         # load training dataset
         # shape = (width,height,channels) i.e shape = (224,256,3) for a 224x256 (widthxheight) with 3 RGB channels
         (train_x, train_y, self.num_classes, self.shape) = load_train_set()
         (valid_x, valid_y) = load_valid_set()
+        train_x = train_x[..., np.newaxis]
+        valid_x = valid_x[..., np.newaxis]
+
         print("[MESSAGE] Loaded testing dataset.")
 
         # converting the input class labels to categorical labels for training
@@ -53,22 +59,23 @@ class Classification_model:
         print("[MESSAGE] Converted labels to categorical labels.")
 
         datagen = image.ImageDataGenerator(
-            featurewise_center=True,
-            featurewise_std_normalization=True,
-            rotation_range=20,
-            width_shift_range=0.2,
-            height_shift_range=0.2,
-            horizontal_flip=False)
+            featurewise_center = True,
+            featurewise_std_normalization = True,
+            rotation_range = rot_range,
+            width_shift_range = width_range,
+            height_shift_range = height_range,
+            horizontal_flip = h_flip,
+            vertical_flip = v_flip)
 
         # compute quantities required for featurewise normalization
         # (std, mean, and principal components if ZCA whitening is applied)
         datagen.fit(train_x)
 
+        csvlogger = CSVLogger(self.designator + ".csv")
         # fits the model on batches with real-time data augmentation:
-        batch_size = 20
-        epochs = 5
         self.model.fit_generator(datagen.flow(train_x, train_Y, batch_size=batch_size),
-                            steps_per_epoch=len(train_x) / batch_size, epochs=epochs)
+                            steps_per_epoch=len(train_x) / batch_size, epochs=epochs,
+                                 callbacks=[csvlogger,])
 
         print("[MESSAGE] Model is trained.")
 
@@ -89,7 +96,8 @@ class Classification_model:
         return self.model
 
     def get_number_of_classes(self):
-        return self.num_classes
+        output = get_num_of_classes()
+        return output
 
-    def get_imput_shape(self):
+    def get_input_shape(self):
         return self.shape
