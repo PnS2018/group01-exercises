@@ -8,39 +8,7 @@ import numpy as np
 import cv2
 import matplotlib.pyplot as plt
 
-#
-#ALL variables are here except the ones for declaring model Size
-#and the threshold for no object.
-
-
-Feature_number = 10
-PicturesPFeature_train = 150
-PicturesPFeature_test = 30
-color = 0
-resize_x = 0.2
-resize_y = 0.2
-shape = (int(480*resize_x), int(640*resize_y), 1) #1 because greyscale
-#train options
-batch_size = 200
-epochs = 400
-rot_range = 20
-width_range = 0.2
-height_range = 0.2
-h_flip = True
-v_flip = True
-
-def get_num_of_classes():
-    return Feature_number
-def get_resize():
-    output = (resize_x, resize_y)
-    return output
-
-
-def train_options():
-    output = (batch_size, epochs, rot_range, width_range, height_range, h_flip,v_flip)
-    return output
-
-def load_train_set():
+def load_train_set(resize_x,resize_y, Feature_number, PicturesPFeature_train):
     train_x = np.zeros((Feature_number*PicturesPFeature_train, int(resize_x*480), int(resize_y*640)), dtype=np.uint8)
     train_y = np.zeros((Feature_number*PicturesPFeature_train, 1))
     for i in range (0,Feature_number):
@@ -69,10 +37,10 @@ def load_train_set():
             string = feature + str(k) + '.png'
             train_x[i*PicturesPFeature_train+k] = cv2.resize(cv2.imread(string, 0), (0,0), fx=resize_x, fy=resize_y)
 
-    output = (train_x, train_y, Feature_number, shape)
+    output = (train_x, train_y)
     return output
 
-def load_valid_set():
+def load_valid_set(resize_x,resize_y, Feature_number, PicturesPFeature_test):
     valid_x = np.zeros((Feature_number*PicturesPFeature_test, int(resize_x*480), int(resize_y*640)), dtype=np.uint8)
     valid_y = np.zeros((Feature_number*PicturesPFeature_test, 1))
     for i in range (0,Feature_number):

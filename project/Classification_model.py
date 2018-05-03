@@ -8,7 +8,22 @@ import os
 from Dataset_generator import *
 
 class Classification_model:
-    def __init__(self,designator):
+    def __init__(self,designator,filter1, kernel1, filter2, kernel2):
+        Feature_number = 10
+        PicturesPFeature_train = 150
+        PicturesPFeature_test = 30
+        color = 0
+        resize_x = 0.2
+        resize_y = 0.2
+        shape = (int(480*resize_x), int(640*resize_y), 1) #1 because greyscale
+        #train options
+        batch_size = 200
+        epochs = 400
+        rot_range = 20
+        width_range = 0.2
+        height_range = 0.2
+        h_flip = True
+        v_flip = True
         self.designator = designator
         feature_number = get_num_of_classes()
         self.x = Input(shape)
@@ -42,8 +57,6 @@ class Classification_model:
 
 
     def train_model(self):
-        #Load training values
-        (batch_size, epochs, rot_range, width_range, height_range, h_flip,v_flip) = train_options()
         # load training dataset
         # shape = (width,height,channels) i.e shape = (224,256,3) for a 224x256 (widthxheight) with 3 RGB channels
         (train_x, train_y, self.num_classes, self.shape) = load_train_set()
