@@ -2,7 +2,7 @@ from keras.layers import Input, Dense, Conv2D, MaxPooling2D, Flatten
 from keras.models import Model
 from keras.preprocessing import image
 from keras.utils import to_categorical
-
+from keras.callbacks import CSVLogger
 import os
 
 from Dataset_generator import *
@@ -13,14 +13,14 @@ class Classification_model:
         feature_number = get_num_of_classes()
         self.x = Input(shape)
 
-        self.y = Conv2D(filters=20,
-                   kernel_size=(7, 7),
+        self.y = Conv2D(filters=5,
+                   kernel_size=(3, 3),
                    padding="same",
                    activation="relu",
                    )(self.x)
         self.y = MaxPooling2D((2, 2), strides=(2, 2))(self.y)
         self.y = Conv2D(filters=25,
-                   kernel_size=(5, 5),
+                   kernel_size=(3, 3),
                    padding="same",
                    activation="relu",
                    )(self.y)
@@ -59,8 +59,10 @@ class Classification_model:
         print("[MESSAGE] Converted labels to categorical labels.")
 
         datagen = image.ImageDataGenerator(
-            featurewise_center = True,
-            featurewise_std_normalization = True,
+	    samplewise_center = True,
+	    samplewise_std_normalization = True,
+#            featurewise_center = True,
+#            featurewise_std_normalization = True,
             rotation_range = rot_range,
             width_shift_range = width_range,
             height_shift_range = height_range,
@@ -75,7 +77,8 @@ class Classification_model:
         # fits the model on batches with real-time data augmentation:
         self.model.fit_generator(datagen.flow(train_x, train_Y, batch_size=batch_size),
                             steps_per_epoch=len(train_x) / batch_size, epochs=epochs,
-                                 callbacks=[csvlogger,])
+                            callbacks =[csvlogger],
+			    validation_data=datagen.flow(valid_x, valid_Y, batch_size=batch_size))
 
         print("[MESSAGE] Model is trained.")
 
@@ -101,3 +104,14 @@ class Classification_model:
 
     def get_input_shape(self):
         return self.shape
+
+
+
+
+
+
+
+
+
+
+
