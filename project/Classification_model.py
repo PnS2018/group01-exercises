@@ -8,34 +8,37 @@ import os
 from Dataset_generator import *
 
 class Classification_model:
-    def __init__(self,designator,filter1, kernel1, filter2, kernel2):
-        Feature_number = 10
-        PicturesPFeature_train = 150
-        PicturesPFeature_test = 30
-        color = 0
-        resize_x = 0.2
-        resize_y = 0.2
-        shape = (int(480*resize_x), int(640*resize_y), 1) #1 because greyscale
-        #train options
-        batch_size = 200
-        epochs = 400
-        rot_range = 20
-        width_range = 0.2
-        height_range = 0.2
-        h_flip = True
-        v_flip = True
+    def __init__(self,designator):
+
+        self.num_classes = 10
+        self.picturesPFeature_train = 150
+        self.picturesPFeature_test = 30
+        self.resize_x = 0.2
+        self.resize_y = 0.2
+        self.shape = (int(480 * self.resize_x), int(640 * self.resize_y), 1)  # 1 because greyscale
+        # train options
+        self.batch_size = 200
+        self.epochs = 400
+        self.rot_range = 20
+        self.width_range = 0.2
+        self.height_range = 0.2
+        self.zoom = 0.3
+
+        self.kernel_size_first = 3
+        self.kernel_size_second = 3
+
         self.designator = designator
         feature_number = get_num_of_classes()
-        self.x = Input(shape)
+        self.x = Input(self.shape)
 
         self.y = Conv2D(filters=5,
-                   kernel_size=(3, 3),
+                   kernel_size=(self.kernel_size_first, self.kernel_size_first),
                    padding="same",
                    activation="relu",
                    )(self.x)
         self.y = MaxPooling2D((2, 2), strides=(2, 2))(self.y)
         self.y = Conv2D(filters=25,
-                   kernel_size=(3, 3),
+                   kernel_size=(self.kernel_size_second, self.kernel_size_second),
                    padding="same",
                    activation="relu",
                    )(self.y)
@@ -57,10 +60,11 @@ class Classification_model:
 
 
     def train_model(self):
+        #Load training values
         # load training dataset
         # shape = (width,height,channels) i.e shape = (224,256,3) for a 224x256 (widthxheight) with 3 RGB channels
-        (train_x, train_y, self.num_classes, self.shape) = load_train_set()
-        (valid_x, valid_y) = load_valid_set()
+        (train_x, train_y) = load_train_set(self.resize_x, self.resize_y, self.num_classes, self.picturesPFeature_train)
+        (valid_x, valid_y) = load_valid_set(self.resize_x, self.resize_y, self.num_classes, self.picturesPFeature_test)
         train_x = train_x[..., np.newaxis]
         valid_x = valid_x[..., np.newaxis]
 
@@ -72,15 +76,14 @@ class Classification_model:
         print("[MESSAGE] Converted labels to categorical labels.")
 
         datagen = image.ImageDataGenerator(
-	    samplewise_center = True,
-	    samplewise_std_normalization = True,
-#            featurewise_center = True,
-#            featurewise_std_normalization = True,
-            rotation_range = rot_range,
-            width_shift_range = width_range,
-            height_shift_range = height_range,
-            horizontal_flip = h_flip,
-            vertical_flip = v_flip)
+	        samplewise_center = True,
+	        samplewise_std_normalization = True,
+          rotation_range = self.rot_range,
+          width_shift_range = self.width_range,
+          height_shift_range = self.height_range,
+          zoom_range = [1-self.zoom, 1+self.zoom],
+          horizontal_flip = True,
+          vertical_flip = True)
 
         # compute quantities required for featurewise normalization
         # (std, mean, and principal components if ZCA whitening is applied)
@@ -88,10 +91,10 @@ class Classification_model:
 
         csvlogger = CSVLogger(self.designator + ".csv")
         # fits the model on batches with real-time data augmentation:
-        self.model.fit_generator(datagen.flow(train_x, train_Y, batch_size=batch_size),
-                            steps_per_epoch=len(train_x) / batch_size, epochs=epochs,
+        self.model.fit_generator(datagen.flow(train_x, train_Y, batch_size=self.batch_size),
+                            steps_per_epoch=len(train_x) / self.batch_size, epochs=self.epochs,
                             callbacks =[csvlogger],
-			    validation_data=datagen.flow(valid_x, valid_Y, batch_size=batch_size))
+			    validation_data=datagen.flow(valid_x, valid_Y, batch_size=self.batch_size))
 
         print("[MESSAGE] Model is trained.")
 
@@ -117,6 +120,9 @@ class Classification_model:
 
     def get_input_shape(self):
         return self.shape
+
+    def get_resize_factors(self):
+        return(self.resize_x, self.resize_y)
 
 
 
