@@ -13,9 +13,7 @@ class Classification_model:
         self.num_classes = 10
         self.picturesPFeature_train = 150
         self.picturesPFeature_test = 30
-        self.resize_x = 0.2
-        self.resize_y = 0.2
-        self.shape = (int(480 * self.resize_x), int(640 * self.resize_y), 1)  # 1 because greyscale
+        self.shape = (int(64), int(64), 1)
         # train options
         self.batch_size = 200
         self.epochs = 400
@@ -23,28 +21,71 @@ class Classification_model:
         self.width_range = 0.2
         self.height_range = 0.2
         self.zoom = 0.3
+        self.activation_conv = "relu"
+        self.activation_dense = "softmax"
 
         self.kernel_size_first = 3
         self.kernel_size_second = 3
 
         self.designator = designator
-        feature_number = get_num_of_classes()
+        create_model()
+
+
+    def create_model1(self):
+        
         self.x = Input(self.shape)
 
         self.y = Conv2D(filters=5,
-                   kernel_size=(self.kernel_size_first, self.kernel_size_first),
+                   kernel_size=(23, 23),
                    padding="same",
-                   activation="relu",
+                   activation=self.activation_conv,
                    )(self.x)
         self.y = MaxPooling2D((2, 2), strides=(2, 2))(self.y)
         self.y = Conv2D(filters=25,
-                   kernel_size=(self.kernel_size_second, self.kernel_size_second),
+                   kernel_size=(5, 5),
                    padding="same",
-                   activation="relu",
+                   activation=self.activation_conv,
                    )(self.y)
         self.y = MaxPooling2D((2, 2), strides=(2, 2))(self.y)
         self.y = Flatten()(self.y)
-        self.y = Dense(feature_number, activation="softmax", )(self.y)
+        self.y = Dense(self.num_classes, activation=self.activation_dense, )(self.y)
+        self.model = Model(self.x, self.y)
+
+        print("[MESSAGE] Model is defined.")
+
+        # print model summary
+        self.model.summary()
+
+        # compile the model aganist the categorical cross entropy loss and use SGD optimizer
+        self.model.compile(loss="categorical_crossentropy",
+                      optimizer="adam",
+                      metrics=["mse", "accuracy"])
+        print ("[MESSAGE] Model is compiled.")
+
+    def create_model2(self):
+        
+        self.x = Input(self.shape)
+
+        self.y = Conv2D(filters=5,
+                   kernel_size=(21, 21),
+                   padding="same",
+                   activation=self.activation_conv,
+                   )(self.x)
+        self.y = MaxPooling2D((2, 2), strides=(2, 2))(self.y)
+        self.y = Conv2D(filters=25,
+                   kernel_size=(7, 7),
+                   padding="same",
+                   activation=self.activation_conv,
+                   )(self.y)
+        self.y = MaxPooling2D((2, 2), strides=(2, 2))(self.y)
+        self.y = Conv2D(filters=47,
+                   kernel_size=(3, 3),
+                   padding="same",
+                   activation=self.activation_conv,
+                   )(self.y)
+        self.y = MaxPooling2D((2, 2), strides=(2, 2))(self.y)
+        self.y = Flatten()(self.y)
+        self.y = Dense(self.num_classes, activation=self.activation_dense, )(self.y)
         self.model = Model(self.x, self.y)
 
         print("[MESSAGE] Model is defined.")
@@ -60,11 +101,10 @@ class Classification_model:
 
 
     def train_model(self):
-        #Load training values
         # load training dataset
         # shape = (width,height,channels) i.e shape = (224,256,3) for a 224x256 (widthxheight) with 3 RGB channels
-        (train_x, train_y) = load_train_set(self.resize_x, self.resize_y, self.num_classes, self.picturesPFeature_train)
-        (valid_x, valid_y) = load_valid_set(self.resize_x, self.resize_y, self.num_classes, self.picturesPFeature_test)
+        (train_x, train_y) = load_train_set(self.num_classes, self.picturesPFeature_train)
+        (valid_x, valid_y) = load_valid_set(self.num_classes, self.picturesPFeature_test)
         train_x = train_x[..., np.newaxis]
         valid_x = valid_x[..., np.newaxis]
 
@@ -120,9 +160,19 @@ class Classification_model:
 
     def get_input_shape(self):
         return self.shape
-
-    def get_resize_factors(self):
-        return(self.resize_x, self.resize_y)
+    
+    def set_parameter(self,s,x,b,e,r,w,h,z, model_choice):
+        self.shape = (int(s),int(s),1)
+        self.batch_size = b
+        self.epochs = e
+        self.rot_range = r
+        self.width_range = w
+        self.height_range = h
+        self.zoom = z
+        if model_choice == 1:
+            create_model1()
+        else:
+            create_model2()
 
 
 
