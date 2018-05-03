@@ -27,7 +27,6 @@ class Classification_model:
         self.kernel_size_first = 3
         self.kernel_size_second = 3
 
-
         self.designator = designator
         feature_number = get_num_of_classes()
         self.x = Input(self.shape)
@@ -79,12 +78,12 @@ class Classification_model:
         datagen = image.ImageDataGenerator(
 	        samplewise_center = True,
 	        samplewise_std_normalization = True,
-            rotation_range = self.rot_range,
-            width_shift_range = self.width_range,
-            height_shift_range = self.height_range,
-            zoom_range = [1-self.zoom, 1+self.zoom],
-            horizontal_flip = True,
-            vertical_flip = True)
+          rotation_range = self.rot_range,
+          width_shift_range = self.width_range,
+          height_shift_range = self.height_range,
+          zoom_range = [1-self.zoom, 1+self.zoom],
+          horizontal_flip = True,
+          vertical_flip = True)
 
         # compute quantities required for featurewise normalization
         # (std, mean, and principal components if ZCA whitening is applied)

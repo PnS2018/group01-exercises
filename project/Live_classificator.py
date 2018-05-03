@@ -25,7 +25,7 @@ model = cm.get_model()
 
 no_object_threshold = 0.1
 num_class = cm.get_number_of_classes()
-(resize_x, resize_y) = get_resize()
+(resize_x, resize_y) = cm.get_resize_factors()
 
 
 labels = ["Ball", "Bottle", "Can", "Cup", "Face", "Pen", "Phone", "Shoe", "Silverware", "Yogurt"]
