@@ -28,7 +28,7 @@ class Classification_model:
         self.kernel_size_second = 3
 
         self.designator = designator
-        create_model()
+        self.create_model1()
 
 
     def create_model1(self):
@@ -103,8 +103,8 @@ class Classification_model:
     def train_model(self):
         # load training dataset
         # shape = (width,height,channels) i.e shape = (224,256,3) for a 224x256 (widthxheight) with 3 RGB channels
-        (train_x, train_y) = load_train_set(self.num_classes, self.picturesPFeature_train)
-        (valid_x, valid_y) = load_valid_set(self.num_classes, self.picturesPFeature_test)
+        (train_x, train_y) = load_train_set(self.num_classes, self.picturesPFeature_train, self.shape)
+        (valid_x, valid_y) = load_valid_set(self.num_classes, self.picturesPFeature_test, self.shape)
         train_x = train_x[..., np.newaxis]
         valid_x = valid_x[..., np.newaxis]
 
@@ -118,12 +118,12 @@ class Classification_model:
         datagen = image.ImageDataGenerator(
 	        samplewise_center = True,
 	        samplewise_std_normalization = True,
-          rotation_range = self.rot_range,
-          width_shift_range = self.width_range,
-          height_shift_range = self.height_range,
-          zoom_range = [1-self.zoom, 1+self.zoom],
-          horizontal_flip = True,
-          vertical_flip = True)
+            rotation_range = self.rot_range,
+            width_shift_range = self.width_range,
+            height_shift_range = self.height_range,
+            zoom_range = [1-self.zoom, 1+self.zoom],
+            horizontal_flip = True,
+            vertical_flip = True)
 
         # compute quantities required for featurewise normalization
         # (std, mean, and principal components if ZCA whitening is applied)
@@ -155,13 +155,13 @@ class Classification_model:
         return self.model
 
     def get_number_of_classes(self):
-        output = get_num_of_classes()
+        output = self.num_classes
         return output
 
     def get_input_shape(self):
         return self.shape
     
-    def set_parameter(self,s,x,b,e,r,w,h,z, model_choice):
+    def set_parameter(self,s,b,e,r,w,h,z, model_choice):
         self.shape = (int(s),int(s),1)
         self.batch_size = b
         self.epochs = e
@@ -170,9 +170,9 @@ class Classification_model:
         self.height_range = h
         self.zoom = z
         if model_choice == 1:
-            create_model1()
+            self.create_model1()
         else:
-            create_model2()
+            self.create_model2()
 
 
 

@@ -35,14 +35,14 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
     # and occupied/unoccupied text
     start = time.time()
     image = frame.array
-    image_resized = cv2.resize(image, (0,0), fx=resize_x, fy=resize_y)
-    image_gray = cv2.cvtColor(image_resized, cv2.COLOR_BGR2GRAY)
-    image_gray = image_gray.astype(np.float64)
-    image_gray -= np.mean(image_gray, keepdims=True)
-    image_gray /= (np.std(image_gray, keepdims=True) + K.epsilon())
+    image_gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    batch = ip.resize_to_item(image_gray, cm.shape)
+    batch = batch.astype(np.float64)
+    batch -= np.mean(batch, keepdims=True)
+    batch /= (np.std(batch, keepdims=True) + K.epsilon())
     # predict with the model
     
-    preds = model.predict(np.expand_dims(np.expand_dims(image_gray, axis=0),axis =3))
+    preds = model.predict(np.expand_dims(np.expand_dims(batch, axis=0),axis =3))
     end = time.time()
     print end - start
     print preds
